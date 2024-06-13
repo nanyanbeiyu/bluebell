@@ -1,0 +1,374 @@
+basePath: /api/vi
+definitions:
+  api.ResponseData:
+    properties:
+      code:
+        type: integer
+      data: {}
+      msg: {}
+    type: object
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  models.CartePostParams:
+    properties:
+      community_id:
+        description: 社区ID
+        example: "0"
+        type: string
+      content:
+        description: 帖子内容
+        type: string
+      title:
+        description: 帖子标题
+        type: string
+    required:
+    - community_id
+    - content
+    - title
+    type: object
+  models.Community:
+    properties:
+      community_id:
+        description: 社区id
+        type: integer
+      community_name:
+        description: 社区名称
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      introduction:
+        description: 社区介绍
+        type: string
+      posts:
+        description: 社区对应的帖子
+        items:
+          $ref: '#/definitions/models.Post'
+        type: array
+      updatedAt:
+        type: string
+    type: object
+  models.GetCommunityListParams:
+    properties:
+      community_id:
+        description: 社区ID
+        type: integer
+      community_name:
+        description: 社区名称
+        type: string
+      introduction:
+        description: 社区介绍
+        type: string
+    type: object
+  models.Post:
+    properties:
+      authorID:
+        description: 帖子作者的ID
+        type: integer
+      communityID:
+        description: 帖子所属社区
+        type: integer
+      content:
+        description: 帖子内容
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      postID:
+        description: 帖子ID
+        type: integer
+      status:
+        description: 帖子状态
+        type: integer
+      title:
+        description: 帖子标题
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  models.UserLoginParams:
+    properties:
+      password:
+        description: 密码 必须传入
+        type: string
+      user_name:
+        description: 用户名 必须传入
+        type: string
+    required:
+    - password
+    - user_name
+    type: object
+  models.UserSignUpParams:
+    properties:
+      password:
+        description: 密码 必须传入
+        type: string
+      re_password:
+        description: 确认密码 必须传入
+        type: string
+      user_name:
+        description: 用户名 必须传入
+        type: string
+    required:
+    - password
+    - re_password
+    - user_name
+    type: object
+  models.VoteData:
+    properties:
+      direction:
+        description: 赞成票（1）反对票（-1）取消投票（0）
+        enum:
+        - 1
+        - 0
+        - -1
+        example: "0"
+        type: string
+      post_id:
+        description: 帖子ID
+        example: "0"
+        type: string
+    required:
+    - post_id
+    type: object
+host: localhost:8081
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support/
+  description: 这是一个基于gin框架的社区web项目
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0
+  termsOfService: http://swagger.io/terms/
+  title: bluebell
+  version: "1.0"
+paths:
+  /community:
+    get:
+      consumes:
+      - application/json
+      description: 获取社区列表
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/models.GetCommunityListParams'
+      summary: 获取社区列表
+      tags:
+      - 社区列表
+    post:
+      consumes:
+      - application/json
+      description: 添加社区
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: 添加社区
+      tags:
+      - 社区详情
+  /community/:id:
+    delete:
+      consumes:
+      - application/json
+      description: 删除社区
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: 删除社区
+      tags:
+      - 社区详情
+    get:
+      consumes:
+      - application/json
+      description: 获取社区详情
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/models.Community'
+      summary: 获取社区详情
+      tags:
+      - 社区详情
+  /login:
+    post:
+      parameters:
+      - description: LoginParams
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserLoginParams'
+      produces:
+      - application/json
+      responses: {}
+      summary: 登录
+      tags:
+      - 用户
+  /posts:
+    get:
+      consumes:
+      - application/json
+      description: 获取帖子列表
+      parameters:
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页显示的条数
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: 获取帖子列表
+      tags:
+      - posts
+    post:
+      consumes:
+      - application/json
+      description: 创建帖子
+      parameters:
+      - description: 创建帖子
+        in: body
+        name: id
+        required: true
+        schema:
+          $ref: '#/definitions/models.CartePostParams'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: 创建帖子
+      tags:
+      - posts
+  /posts/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 获取帖子详情
+      parameters:
+      - description: 帖子id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: 获取帖子详情
+      tags:
+      - posts
+  /posts2:
+    get:
+      consumes:
+      - application/json
+      description: 获取帖子列表
+      parameters:
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页显示的条数
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: 获取帖子列表
+      tags:
+      - posts
+  /signup:
+    post:
+      parameters:
+      - description: SignUpParams
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserSignUpParams'
+      produces:
+      - application/json
+      responses: {}
+      summary: 注册
+      tags:
+      - 用户
+  /vote:
+    post:
+      consumes:
+      - application/json
+      description: 投票
+      parameters:
+      - description: 投票信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.VoteData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.ResponseData'
+      security:
+      - ApiKeyAuth: []
+      summary: 投票
+      tags:
+      - vote
+swagger: "2.0"
